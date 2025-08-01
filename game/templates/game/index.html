@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Oyunu</title>
+</head>
+<body>
+    <h1>Quiz Oyununa Hoş Geldiniz!</h1>
+    
+
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/game/'
+        );
+
+        chatSocket.onopen = function(e) {
+            console.log('WebSocket bağlantısı başarıyla kuruldu.');
+            chatSocket.send(JSON.stringify({
+                'message': 'Merhaba sunucu!'
+            }));
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('Sunucudan gelen mesaj:', data.message);
+        };
+
+        chatSocket.onclose = function(e) {
+            console.log('WebSocket bağlantısı kapandı.');
+        };
+    </script>
+</body>
+</html>

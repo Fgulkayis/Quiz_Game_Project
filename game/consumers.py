@@ -1,19 +1,22 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+from channels.generic.websocket import WebsocketConsumer
 
-class GameConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        await self.accept()
-        await self.send(text_data=json.dumps({
-            'message': 'WebSocket bağlantısı başarılı!'
-        }))
+class GameConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
 
-    async def disconnect(self, close_code):
+        #self.send(text_data=json.dumps({
+        #   'message': 'WebSocket bağlantısı başarıyla kuruldu!'
+        #}))
+
+    def disconnect(self, close_code):
         pass
 
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        
-        await self.send(text_data=json.dumps({
-            'message': f"Mesaj alındı: {data}"
-        }))
+    def receive(self, text_data):
+        #text_data_json = json.loads(text_data)
+        #message = text_data_json['message']
+
+        #self.send(text_data=json.dumps({
+          #  'message': message
+        #}))
+       pass
