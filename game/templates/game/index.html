@@ -2,49 +2,28 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz Oyunu</title>
+    <title>Oyun Odaları</title>
 </head>
 <body>
-    <h1>Quiz Oyununa Hoş Geldiniz!</h1>
-    
-   <textarea id="log" cols="50" rows="10"></textarea><br>
-   <input id="input" type="text" size="50"><br>
-   <input id="submit" type="button" value="Gönder">
- <script>
-    const chatSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/game/'
-    );
+    <h1>Oyun Odaları</h1>
+    <ul>
+    {% for room in rooms %}
+        <li><a href="{% url 'room' room.name %}">{{ room.name }}</a></li>
+    {% endfor %}
+    </ul>
 
-    chatSocket.onopen = function(e) {
-        console.log('WebSocket bağlantısı başarıyla kuruldu.');
-    };
+    <h3>Yeni Oda Oluştur</h3>
+    <form id="join-room-form">
+        <input id="room-name-input" type="text" placeholder="Oda Adı">
+        <button type="submit">Odaya Katıl</button>
+    </form>
 
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        console.log('Sunucudan gelen mesaj:', data);
-
-        if (data.type === 'connection_established') {
-             console.log(data.message);
-        } else {
-             
-             document.querySelector('#log').value += (data.message + '\n');
-        }
-    };
-
-    chatSocket.onclose = function(e) {
-        console.error('WebSocket bağlantısı kapandı.');
-    };
-
-    document.querySelector('#submit').onclick = function(e) {
-        const messageInputDom = document.querySelector('#input');
-        const message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-        messageInputDom.value = '';
-    };
-</script>
-
-   
+    <script>
+        document.querySelector('#join-room-form').onsubmit = function(e) {
+            e.preventDefault();
+            const roomName = document.querySelector('#room-name-input').value;
+            window.location.pathname = '/room/' + roomName + '/';
+        };
+    </script>
 </body>
 </html>

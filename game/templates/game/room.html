@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ room_name }} Odası</title>
+</head>
+<body>
+    <h1>{{ room_name }} Odası</h1>
+    <p>Oyunun başlamasını bekliyor...</p>
+    
+    <textarea id="log" cols="50" rows="10"></textarea><br>
+    <input id="input" type="text" size="50"><br>
+    <input id="submit" type="button" value="Gönder">
+    <input id="room-name" type="hidden" value="{{ room_name }}">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roomName = document.getElementById('room-name').value;
+            console.log('Oda adı:', roomName);
+
+            const chatSocket = new WebSocket(
+                'ws://' + window.location.host + '/ws/game/' + roomName + '/'
+            );
+
+            
+            
+            chatSocket.onopen = function(e) {
+                console.log('WebSocket bağlantısı başarıyla kuruldu.');
+            };
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                document.querySelector('#log').value += (data.message + '\n');
+            };
+            chatSocket.onclose = function(e) {
+                console.error('WebSocket bağlantısı kapandı.');
+            };
+
+            
+            document.querySelector('#submit').onclick = function(e) {
+                const messageInputDom = document.querySelector('#input');
+                const message = messageInputDom.value;
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInputDom.value = '';
+            };
+        });
+    </script>
+</body>
+</html>
