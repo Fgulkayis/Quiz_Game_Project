@@ -5,7 +5,17 @@
     <title>Oyun Odaları</title>
 </head>
 <body>
-    <h1>Oyun Odaları</h1>
+    {% if user.is_authenticated %}
+        <h1>Hoş geldin, {{ user.username }}!</h1>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Çıkış Yap</button>
+        </form>
+    {% else %}
+        <p>Lütfen <a href="{% url 'login' %}">giriş yapın</a> veya <a href="{% url 'register' %}">yeni bir hesap oluşturun</a>.</p>
+    {% endif %}
+
+    <h2>Oyun Odaları</h2>
     <ul>
     {% for room in rooms %}
         <li><a href="{% url 'room' room.name %}">{{ room.name }}</a></li>

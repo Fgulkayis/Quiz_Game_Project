@@ -8,10 +8,22 @@
     <h1>{{ room_name }} Odası</h1>
     <p>Oyunun başlamasını bekliyor...</p>
     
+    <div id="game-container">
+        <button id="start-game-btn">Oyunu Başlat</button>
+        <div id="question-area" style="display: none;">
+            <h2 id="question-text"></h2>
+            <input type="text" id="answer-input" placeholder="Cevabınızı girin">
+            <button id="submit-answer-btn">Cevapla</button>
+        </div>
+        <div id="scores-area">
+            <h3>Puan Tablosu</h3>
+            <ul id="scores-list"></ul>
+        </div>
+    </div>
+
     <textarea id="log" cols="50" rows="10"></textarea><br>
     <input id="input" type="text" size="50"><br>
     <input id="submit" type="button" value="Gönder">
-    <input id="room-name" type="hidden" value="{{ room_name }}">
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -21,21 +33,63 @@
             const chatSocket = new WebSocket(
                 'ws://' + window.location.host + '/ws/game/' + roomName + '/'
             );
+            
+            const logElement = document.querySelector('#log');
+            const startGameBtn = document.querySelector('#start-game-btn');
+            const questionArea = document.querySelector('#question-area');
+            const questionText = document.querySelector('#question-text');
+            const answerInput = document.querySelector('#answer-input');
+            const submitAnswerBtn = document.querySelector('#submit-answer-btn');
+            const scoresList = document.querySelector('#scores-list');
 
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                
+                if (data.type === 'new_question') {
+                    questionArea.style.display = 'block';
+                    startGameBtn.style.display = 'none';
+                    questionText.textContent = data.question.text;
+                    answerInput.value = '';
+                } else if (data.type === 'score_update') {
+                    scoresList.innerHTML = '';
+                    for (const user in data.scores) {
+                        const li = document.createElement('li');
+                        li.textContent = `${user}: ${data.scores[user]}`;
+                        scoresList.appendChild(li);
+                    }
+                } else if (data.type === 'game_over') {
+                    
+                    alert(data.message); 
+                    startGameBtn.style.display = 'block';
+                    questionArea.style.display = 'none';
+                } else {
+                    logElement.value += (data.message + '\n');
+                }
+            };
             
+            startGameBtn.onclick = function(e) {
+                chatSocket.send(JSON.stringify({
+                    'type': 'start_game'
+                }));
+            };
+
+            submitAnswerBtn.onclick = function(e) {
+                const answer = answerInput.value;
+                chatSocket.send(JSON.stringify({
+                    'type': 'answer_question',
+                    'answer': answer
+                }));
+            };
             
+    
             chatSocket.onopen = function(e) {
                 console.log('WebSocket bağlantısı başarıyla kuruldu.');
             };
-            chatSocket.onmessage = function(e) {
-                const data = JSON.parse(e.data);
-                document.querySelector('#log').value += (data.message + '\n');
-            };
+
             chatSocket.onclose = function(e) {
                 console.error('WebSocket bağlantısı kapandı.');
             };
 
-            
             document.querySelector('#submit').onclick = function(e) {
                 const messageInputDom = document.querySelector('#input');
                 const message = messageInputDom.value;
@@ -46,5 +100,6 @@
             };
         });
     </script>
+    <input id="room-name" type="hidden" value="{{ room_name }}">
 </body>
 </html>

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-zj-uk(zdc!y9o&n56n#8b%o^c(j(y0yu(+w866*hs-h!5x!%$r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.111']
 
 
 # Application definition
@@ -56,7 +56,7 @@ ROOT_URLCONF = 'quiz_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,3 +128,5 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
